@@ -68,7 +68,7 @@ namespace SDTM_v1
 			#endif
 
 			var options = new Options();
-
+			//Convert.ToInt32();
 			if (CommandLine.Parser.Default.ParseArguments(args, options))
 			{
 				Console.WriteLine(options.numIterations);
@@ -77,6 +77,47 @@ namespace SDTM_v1
 				{
 					Console.WriteLine(one_ele);
 				}
+
+				string input_dir_path = null;
+				string output_dir_path = null;
+				if (options.inputDir.EndsWith('/') || options.inputDir.EndsWith('\\'))
+				{
+					input_dir_path = options.inputDir;
+				}
+				else
+				{
+					input_dir_path = options.inputDir + '/';
+				}
+				if (options.outputDir.EndsWith('/') || options.outputDir.EndsWith('\\'))
+				{
+					output_dir_path = options.outputDir;
+				}
+				else
+				{
+					output_dir_path = options.outputDir + '/';
+				}
+
+				int[] topic_arr = new int[options.topics.Count];
+				for(int idx = 0 ; idx < options.topics.Count ; idx++)
+				{
+					topic_arr[idx] = Convert.ToInt32(options.topics[idx]);
+				}
+				double[] beta_arr = new double[options.betas.Count];
+				for(int idx = 0 ; idx < options.betas.Count ; idx++)
+				{
+					beta_arr[idx] = Convert.ToDouble(options.betas[idx]);
+				}
+				
+
+				// Make SDTM instance
+				SDTM_v1 SDTM_instance = new SDTM_v1(ref topic_arr, options.alpha, ref beta_arr, options.gamma, input_dir_path, output_dir_path);
+
+				// Run SDTM
+				SDTM_instance.GibbsSampling(options.numIterations);
+
+				// Print output
+				SDTM_instance.PrintOutputtoFiles(options.numIterations);
+
 			}
 			else 
 			{
