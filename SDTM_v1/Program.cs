@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 
+/*
+ * Author: JinYeong Bak (jy.bak@kaist.ac.kr)
+ * Program: Self-disclosure topic model
+ */
+
 namespace SDTM_v1
 {
 	// Define a class to receive parsed values
@@ -68,7 +73,7 @@ namespace SDTM_v1
 			#endif
 
 			var options = new Options();
-			//Convert.ToInt32();
+			
 			if (CommandLine.Parser.Default.ParseArguments(args, options))
 			{
 				Console.WriteLine(options.numIterations);
