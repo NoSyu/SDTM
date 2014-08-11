@@ -42,7 +42,7 @@ namespace SDTM_v1
 		  HelpText = "Gamma value")]
 		public double gamma { get; set; }
 
-		[OptionList('b', "betas", Required = false, Separator = ':',
+        [OptionList('b', "betas", Required = false, Separator = ':',
 		  HelpText = "Beta values, Common Words:Seed words for that level:Seed words for other levels")]
 		public IList<string> betas { get; set; }
 
@@ -85,21 +85,21 @@ namespace SDTM_v1
 
 				string input_dir_path = null;
 				string output_dir_path = null;
-				if (options.inputDir.EndsWith('/') || options.inputDir.EndsWith('\\'))
+                if (options.inputDir.EndsWith("/") || options.inputDir.EndsWith("\\"))
 				{
 					input_dir_path = options.inputDir;
 				}
 				else
 				{
-					input_dir_path = options.inputDir + '/';
+					input_dir_path = options.inputDir + "/";
 				}
-				if (options.outputDir.EndsWith('/') || options.outputDir.EndsWith('\\'))
+                if (options.outputDir.EndsWith("/") || options.outputDir.EndsWith("\\"))
 				{
 					output_dir_path = options.outputDir;
 				}
 				else
 				{
-					output_dir_path = options.outputDir + '/';
+                    output_dir_path = options.outputDir + "/";
 				}
 
 				int[] topic_arr = new int[options.topics.Count];
