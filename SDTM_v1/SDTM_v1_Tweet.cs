@@ -15,7 +15,7 @@ namespace SDTM_v1
 		public int sd_level;
 		public int tweet_id;
 
-		public double[] max_ent_prob;
+		public double[] max_ent_prob;   // lambda_0, lambda_1
 
 		public SDTM_v1_Tweet()
 		{

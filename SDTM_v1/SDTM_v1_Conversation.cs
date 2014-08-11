@@ -9,14 +9,14 @@ namespace SDTM_v1
 {
 	class SDTM_v1_Conversation
 	{
-		public int conv_idx;
 		public int user1_id;
 		public int user2_id;
+        public int conv_idx;
 
-		public int[,] CLT;
-		public int[] sumCLT;
+		public int[,] CLT;  // Level x Topic, n^l_{ck}, Each conversation has this, so it is two dimention array
+        public int[] sumCLT;    // Marginalized sum over topic k of CLT, same as n_{cl}
 
-		public int[] vectorCL;
+		//public int[] vectorCL;
 
 		public ArrayList tweet_list;
 

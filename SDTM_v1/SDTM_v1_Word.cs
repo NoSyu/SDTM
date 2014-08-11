@@ -9,7 +9,7 @@ namespace SDTM_v1
 	class SDTM_v1_Word
 	{
 		public int wordidx;
-		public int seed_word_level;
+		public int seed_word_level; // Is this word in seed words list or not. -1 means non of them. Used to compute beta value easily and fast in gibbs sampling
 
 		public SDTM_v1_Word(int word_No)
 		{

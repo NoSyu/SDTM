@@ -18,6 +18,7 @@ namespace SDTM_v1
 		private int numUniqueWords;
 
 		private Hashtable voca_dic_number = null;
+        private ArrayList vocaList = null;
 		private ArrayList convsList = null;
 		private ArrayList[] seed_words_list_level_arr = null;
 
@@ -28,10 +29,10 @@ namespace SDTM_v1
 		private double gamma;
 		private double sumGamma;
 
-		private int[,,] matrixLTW;
-		private int[,] sumLTW;
+		private int[,,] matrixLTW;  // Level x Topic x Words matrix, n^l_{kv}
+		private int[,] sumLTW;      // Marginalized sum over word v of matrixLTW
 		
-		private double[,] probTable;
+		private double[,] probTable;    // Probability table for sampling multinomial distribution
 
 		private string input_dir_path;
 		private string output_dir_path;
@@ -98,22 +99,22 @@ namespace SDTM_v1
 
 					while ((line = sr.ReadLine()) != null)
 					{
-						// Conversation name
+						// Conversation name, userid1_userid2_convid
 						one_conv = new SDTM_v1_Conversation(conv_idx);
 						conv_idx++;
 						line_arr = line.Split('_');
 						one_conv.set_users(Convert.ToInt32(line_arr[0]), Convert.ToInt32(line_arr[1]));
 
-						// number of tweets
+						// number of tweets in the conversation
 						line = sr.ReadLine();
 						numberofTweets = Convert.ToInt32(line);
 
 						// Each tweet in a conversation
 						for (int tweet_idx = 0; tweet_idx < numberofTweets; tweet_idx++)
 						{
+                            // Line format is
 							// user_id	lambda_0	lambda_1	numberofuniquewords	BagofWordsFormat
 							line = sr.ReadLine();
-
 							line_arr = line.Split('\t');
 							
 							one_tweet = new SDTM_v1_Tweet();
@@ -121,7 +122,8 @@ namespace SDTM_v1
 							one_tweet.set_max_ent_prob(Convert.ToDouble(line_arr[1]), Convert.ToDouble(line_arr[2]));
 
 							word_count = new Dictionary<SDTM_v1_Word, int>();
-							word_count_a_tweet = Convert.ToInt32(line_arr[3]) + 3;
+                            //word_count_a_tweet = Convert.ToInt32(line_arr[3]) + 4;  // At the end of line_arr
+                            word_count_a_tweet = line_arr.Length;
 
 							for (int word_idx = 4; word_idx < word_count_a_tweet; word_idx++)
 							{
@@ -156,9 +158,9 @@ namespace SDTM_v1
 			Read conversations from file
 		 */
 		private void Read_voca_dic(string target_file_path)
-		{
-			//this.voca_dic_List = new ArrayList();
+		{		
 			this.voca_dic_number = new Hashtable();
+            this.vocaList = new ArrayList();
 			int voca_idx = 0;
 
 			try
@@ -169,7 +171,7 @@ namespace SDTM_v1
 
 					while ((line = sr.ReadLine()) != null)
 					{
-						//this.voca_dic_List.Add(line);
+                        this.vocaList.Add(line);
 						this.voca_dic_number.Add(line, voca_idx);
 						voca_idx++;
 					}
@@ -218,7 +220,7 @@ namespace SDTM_v1
 		}
 
 		/*
-		 Initialize
+		 Initialize variables
 		 */
 		private void init()
 		{
@@ -229,7 +231,6 @@ namespace SDTM_v1
 			this.sumAlpha[1] = this.alpha * this.numTopics_arr[1];
 			this.sumAlpha[2] = this.alpha * this.numTopics_arr[2];
 			this.sumGamma = this.gamma * SDTM_v1.numLevels;
-			// sumBeta
 			this.sumBeta = new double[SDTM_v1.numLevels];
 			int numSeedWords = 0;
 			foreach(ArrayList one_list in seed_words_list_level_arr)
@@ -253,11 +254,12 @@ namespace SDTM_v1
 			int newLevel = 0;
 			int newTopic = 0;
 
+            // Assign initial level and topic index for each tweet
 			foreach (SDTM_v1_Conversation one_conv in this.convsList)
 			{
 				one_conv.CLT = new int[SDTM_v1.numLevels, this.numTopics_Max];
 				one_conv.sumCLT = new int[SDTM_v1.numLevels];
-				one_conv.vectorCL = new int[SDTM_v1.numLevels];
+				//one_conv.vectorCL = new int[SDTM_v1.numLevels];
 
 				// Assign each value to variable
 				foreach (SDTM_v1_Tweet one_tweet in one_conv.tweet_list)
@@ -278,7 +280,7 @@ namespace SDTM_v1
 
 					one_conv.CLT[newLevel, newLevel]++;
 					one_conv.sumCLT[newLevel]++;
-					one_conv.vectorCL[newLevel]++;
+					//one_conv.vectorCL[newLevel]++;
 				}
 			}
 
@@ -345,7 +347,7 @@ namespace SDTM_v1
 				}
 				this.sumLTW[oldLevel, oldTopic] -= one_tweet.word_count_table.Count;
 
-				one_conv.vectorCL[oldLevel]--;
+				//one_conv.vectorCL[oldLevel]--;
 				one_conv.CLT[oldLevel, oldTopic]--;
 				one_conv.sumCLT[oldLevel]--;
 
@@ -448,14 +450,14 @@ namespace SDTM_v1
 				}
 				this.sumLTW[newLevel, newTopic] += one_tweet.word_count_table.Count;
 
-				one_conv.vectorCL[newLevel]++;
+				//one_conv.vectorCL[newLevel]++;
 				one_conv.CLT[newLevel, newTopic]++;
 				one_conv.sumCLT[newLevel]++;
 			}
 		}
 
 		/*
-			check existence of seed words in a tweet
+			Check existence of seed words in a tweet
 		 */
 		private int is_exist_seed_words_a_tweet(SDTM_v1_Tweet one_tweet)
 		{
@@ -468,7 +470,7 @@ namespace SDTM_v1
 					if (this.seed_words_list_level_arr[level_idx].Contains(one_entry.Key.wordidx))
 					{
 						target_level_idx = level_idx;
-						one_entry.Key.seed_word_level = level_idx;	// Check it
+						one_entry.Key.seed_word_level = level_idx;
 					}
 				}
 			}
@@ -518,7 +520,67 @@ namespace SDTM_v1
 
 			// Phi
 			// Compute Phi
-			// Not yet
+            double[][][] phi = null;
+            Compute_Phi(out phi);
+
+            try
+            {
+                for (int level_idx = 0; level_idx < SDTM_v1.numLevels; level_idx++)
+                {
+                    using (StreamWriter sw_out = new StreamWriter(this.output_dir_path + filename_prefix + "_Phi_L" + level_idx + ".csv"))
+                    {
+                        for (int word_idx = 0; word_idx < this.numUniqueWords; word_idx++)
+                        {
+                            for (int topic_idx = 0; topic_idx < this.numTopics_Max; topic_idx++)
+                            {
+                                sw_out.Write(phi[level_idx][topic_idx][word_idx] + ",");
+                            }
+                            sw_out.WriteLine("");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            // Most probable words of each topic
+            try
+            {
+                double[] target_level_topic_phi_vec = null;
+
+                for (int level_idx = 0; level_idx < SDTM_v1.numLevels; level_idx++)
+                {
+                    int[][] top_word_topic = new int[this.numTopics_Max][];
+
+                    // Get vector of phi by level and topic
+                    for (int topic_idx = 0; topic_idx < this.numTopics_Max; topic_idx++)
+                    {
+                        target_level_topic_phi_vec = phi[level_idx][topic_idx];
+
+                        var sorting_value_reserve_index = target_level_topic_phi_vec.Select((x, i) => new KeyValuePair<double, int>(x, i)).OrderBy(x => x.Key).ToList();
+
+                        top_word_topic[topic_idx] = sorting_value_reserve_index.Select(x => x.Value).ToArray();
+                    }
+
+                    using (StreamWriter sw_out = new StreamWriter(this.output_dir_path + filename_prefix + "_RankWords_L" + level_idx + ".csv"))
+                    {
+                        for (int word_idx = 0; word_idx < SDTM_v1.numProbWords; word_idx++)
+                        {
+                            for (int topic_idx = 0; topic_idx < this.numTopics_Max; topic_idx++)
+                            {
+                                sw_out.Write(this.vocaList[top_word_topic[topic_idx][word_idx]] + ",");
+                            }
+                            sw_out.WriteLine("");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
 			// Theta
 			// Compute Theta
@@ -541,6 +603,7 @@ namespace SDTM_v1
 									);
 							}
 						}
+                        sw_out.WriteLine("");
 					}
 				}
 			}
@@ -581,10 +644,64 @@ namespace SDTM_v1
 		/*
 			Compute Phi
 		 */
-		//private void Compute_Phi(out double[,] phi)
-		//{
-		//	phi = new double[]
-		//}
+        private void Compute_Phi(out double[][][] phi)
+		{
+            phi = new double[SDTM_v1.numLevels][][];
+
+            double temp_val = 0.0;
+            double target_beta = 0.0;
+            int target_word_seed_word_or_not = 0;
+
+            // Seed words or not
+            int[] seed_words_or_not = Enumerable.Repeat(-1, this.numUniqueWords).ToArray();
+
+            for (int level_idx = 0; level_idx < SDTM_v1.numLevels; level_idx++)
+            {
+                foreach (int seed_word_idx in this.seed_words_list_level_arr[level_idx])
+                {
+                    seed_words_or_not[seed_word_idx] = level_idx;
+                }
+            }
+
+            // Compute each value in Phi
+            for (int level_idx = 0; level_idx < SDTM_v1.numLevels; level_idx++)
+            {
+                phi[level_idx] = new double[this.numTopics_Max][];
+
+                for (int topic_idx = 0; topic_idx < this.numTopics_Max; topic_idx++)
+                {
+                    phi[level_idx][topic_idx] = new double[this.numUniqueWords];
+                }
+
+
+                for (int word_idx = 0; word_idx < this.numUniqueWords; word_idx++)
+                {
+                    target_word_seed_word_or_not = seed_words_or_not[word_idx];
+                    if (-1 == target_word_seed_word_or_not)
+                    {
+                        // Common word
+                        target_beta = this.betas[0];
+                    }
+                    else if (level_idx == target_word_seed_word_or_not)
+                    {
+                        // Target level's seed word
+                        target_beta = this.betas[1];
+                    }
+                    else
+                    {
+                        // Other level's seed word
+                        target_beta = this.betas[2];
+                    }
+
+                    for (int topic_idx = 0; topic_idx < this.numTopics_Max; topic_idx++)
+                    {
+                        phi[level_idx][topic_idx][word_idx] = 
+                            (this.matrixLTW[level_idx, topic_idx, word_idx] + target_beta) 
+                            / (this.sumLTW[level_idx, topic_idx] + this.sumBeta[level_idx]);
+                    }
+                }
+            }
+		}
 
 		
 	}
