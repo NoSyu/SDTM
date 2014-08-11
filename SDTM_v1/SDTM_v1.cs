@@ -115,7 +115,7 @@ namespace SDTM_v1
                             // Line format is
 							// user_id	lambda_0	lambda_1	numberofuniquewords	BagofWordsFormat
 							line = sr.ReadLine();
-							line_arr = line.Split('\t');
+							line_arr = line.Split(' ');
 							
 							one_tweet = new SDTM_v1_Tweet();
 							one_tweet.set_tweet_id(Convert.ToInt32(line_arr[0]));
@@ -146,7 +146,7 @@ namespace SDTM_v1
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.Message);
+				Console.WriteLine(e);
 				Environment.Exit(1);
 			}
 
@@ -179,7 +179,7 @@ namespace SDTM_v1
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.Message);
+				Console.WriteLine(e);
 				Environment.Exit(1);
 			}
 
@@ -206,14 +206,21 @@ namespace SDTM_v1
 
 						while ((line = sr.ReadLine()) != null)
 						{
-							target_seedword_idx = (int) this.voca_dic_number[line];
+                            try
+                            {
+                                target_seedword_idx = (int)this.voca_dic_number[line];
+                            }
+                            catch (Exception e)
+                            {
+
+                            }
 							this.seed_words_list_level_arr[level_idx].Add(target_seedword_idx);
 						}
 					}
 				}
 				catch (Exception e)
 				{
-					Console.WriteLine(e.Message);
+					Console.WriteLine(e);
 					Environment.Exit(1);
 				}
 			}
@@ -497,6 +504,7 @@ namespace SDTM_v1
 					{
 						newLevel = level_idx;
 						newTopic = topic_idx;
+                        return;
 					}
 				}
 			}
@@ -513,6 +521,11 @@ namespace SDTM_v1
 		 */
 		public void PrintOutputtoFiles(int numGibbsIters)
 		{
+            // Check existence of output directory
+            // Create directory
+            // http://msdn.microsoft.com/en-us/library/54a0at6s.aspx
+            System.IO.Directory.CreateDirectory(this.output_dir_path);
+
 			String filename_prefix = String.Format("SDTM_T-{0}-{1}-{2}_A-{3}_B-{4}-{5}-{6}_G-{7}_I-{8}",
 				this.numTopics_arr[0], this.numTopics_arr[1], this.numTopics_arr[2],
 				this.alpha, this.betas[0], this.betas[1], this.betas[2],
@@ -542,7 +555,7 @@ namespace SDTM_v1
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e);
             }
 
             // Most probable words of each topic
@@ -555,6 +568,7 @@ namespace SDTM_v1
                     int[][] top_word_topic = new int[this.numTopics_Max][];
 
                     // Get vector of phi by level and topic
+                    // http://stackoverflow.com/questions/1760185/c-sharp-sort-list-while-also-returning-the-original-index-positions
                     for (int topic_idx = 0; topic_idx < this.numTopics_Max; topic_idx++)
                     {
                         target_level_topic_phi_vec = phi[level_idx][topic_idx];
@@ -579,7 +593,7 @@ namespace SDTM_v1
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e);
             }
 
 			// Theta
@@ -609,7 +623,7 @@ namespace SDTM_v1
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.Message);
+				Console.WriteLine(e);
 			}
 
 			// Most probable words
@@ -636,7 +650,7 @@ namespace SDTM_v1
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.Message);
+				Console.WriteLine(e);
 			}
 		}
 

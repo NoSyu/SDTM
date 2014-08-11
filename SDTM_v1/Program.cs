@@ -42,11 +42,11 @@ namespace SDTM_v1
 		  HelpText = "Gamma value")]
 		public double gamma { get; set; }
 
-        [OptionList('b', "betas", Required = false, Separator = ':',
+        [OptionList('b', "betas", Required = true, Separator = ':',
 		  HelpText = "Beta values, Common Words:Seed words for that level:Seed words for other levels")]
 		public IList<string> betas { get; set; }
 
-		[OptionList('k', "Topics", Required = false, Separator = ':',
+		[OptionList('k', "Topics", Required = true, Separator = ':',
 		  HelpText = "The number of topics for each level")]
 		public IList<string> topics { get; set; }
 
@@ -68,7 +68,7 @@ namespace SDTM_v1
 			#if DEBUG
 			if (0 == args.Length)
 			{
-				args = new[] { "-i", "2000", "-d", "./input", "-o", "./output", "-b", "0.01:2.0:0.000001", "-k", "60:40:40" };
+                args = new[] { "-i", "2000", "-d", "./input_data", "-o", "./output_data", "-b", "0.01:2.0:0.000001", "-k", "60:40:40" };
 			}
 			#endif
 
@@ -76,13 +76,6 @@ namespace SDTM_v1
 			
 			if (CommandLine.Parser.Default.ParseArguments(args, options))
 			{
-				Console.WriteLine(options.numIterations);
-
-				foreach (string one_ele in options.topics)
-				{
-					Console.WriteLine(one_ele);
-				}
-
 				string input_dir_path = null;
 				string output_dir_path = null;
                 if (options.inputDir.EndsWith("/") || options.inputDir.EndsWith("\\"))
@@ -127,6 +120,7 @@ namespace SDTM_v1
 			else 
 			{
 				Console.WriteLine("Error during parsing arguments");
+                Console.ReadLine(); // Prevent closing console automatically
 			}
 
 			return 0;
