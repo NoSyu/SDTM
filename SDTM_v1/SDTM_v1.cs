@@ -266,7 +266,6 @@ namespace SDTM_v1
 			{
 				one_conv.CLT = new int[SDTM_v1.numLevels, this.numTopics_Max];
 				one_conv.sumCLT = new int[SDTM_v1.numLevels];
-				//one_conv.vectorCL = new int[SDTM_v1.numLevels];
 
 				// Assign each value to variable
 				foreach (SDTM_v1_Tweet one_tweet in one_conv.tweet_list)
@@ -285,9 +284,8 @@ namespace SDTM_v1
 					}
 					this.sumLTW[newLevel, newTopic] += one_tweet.word_count_table.Count;
 
-					one_conv.CLT[newLevel, newLevel]++;
+                    one_conv.CLT[newLevel, newTopic]++;
 					one_conv.sumCLT[newLevel]++;
-					//one_conv.vectorCL[newLevel]++;
 				}
 			}
 
@@ -354,7 +352,6 @@ namespace SDTM_v1
 				}
 				this.sumLTW[oldLevel, oldTopic] -= one_tweet.word_count_table.Count;
 
-				//one_conv.vectorCL[oldLevel]--;
 				one_conv.CLT[oldLevel, oldTopic]--;
 				one_conv.sumCLT[oldLevel]--;
 
@@ -362,7 +359,7 @@ namespace SDTM_v1
 				// Level 0
 				numTopics_target_level = numTopics_arr[0];
 				prob_part_senti_value = one_tweet.max_ent_prob[0] / (one_conv.sumCLT[0] + this.sumAlpha[0]);
-				target_sumBeta = sumBeta[0];
+				target_sumBeta = this.sumBeta[0];
 				
 				for (int ti = 0; ti < numTopics_target_level; ti++) 
 				{
@@ -403,7 +400,7 @@ namespace SDTM_v1
 				{
 					numTopics_target_level = numTopics_arr[level_idx];
 					prob_part_senti_value = one_tweet.max_ent_prob[1] / (one_conv.sumCLT[level_idx] + this.sumAlpha[level_idx]);
-					target_sumBeta = sumBeta[level_idx];
+					target_sumBeta = this.sumBeta[level_idx];
 
 					for (int ti = 0; ti < numTopics_target_level; ti++)
 					{
@@ -456,8 +453,7 @@ namespace SDTM_v1
 					this.matrixLTW[newLevel, newTopic, one_entry.Key.wordidx]++;
 				}
 				this.sumLTW[newLevel, newTopic] += one_tweet.word_count_table.Count;
-
-				//one_conv.vectorCL[newLevel]++;
+                
 				one_conv.CLT[newLevel, newTopic]++;
 				one_conv.sumCLT[newLevel]++;
 			}
