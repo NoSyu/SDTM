@@ -272,7 +272,7 @@ namespace SDTM_v1
 				{
 					// Find whether seed words are existed in one_tweet or not
 					newLevel = is_exist_seed_words_a_tweet(one_tweet);
-					newTopic = rnd.Next(this.numTopics_arr[newLevel]);
+					newTopic = this.rnd.Next(this.numTopics_arr[newLevel]);
 
 					// Assign it
 					one_tweet.set_sd_level(newLevel);
@@ -569,18 +569,18 @@ namespace SDTM_v1
                     {
                         target_level_topic_phi_vec = phi[level_idx][topic_idx];
 
-                        var sorting_value_reserve_index = target_level_topic_phi_vec.Select((x, i) => new KeyValuePair<double, int>(x, i)).OrderBy(x => x.Key).ToList();
+                        var sorting_value_reserve_index = target_level_topic_phi_vec.Select((x, i) => new KeyValuePair<double, int>(x, i)).OrderByDescending(x => x.Key).ToList();
 
                         top_word_topic[topic_idx] = sorting_value_reserve_index.Select(x => x.Value).ToArray();
                     }
 
                     using (StreamWriter sw_out = new StreamWriter(this.output_dir_path + filename_prefix + "_RankWords_L" + level_idx + ".csv"))
                     {
-                        for (int word_idx = 0; word_idx < SDTM_v1.numProbWords; word_idx++)
+                        for (int rank_word_idx = 0; rank_word_idx < SDTM_v1.numProbWords; rank_word_idx++)
                         {
                             for (int topic_idx = 0; topic_idx < this.numTopics_Max; topic_idx++)
                             {
-                                sw_out.Write(this.vocaList[top_word_topic[topic_idx][word_idx]] + ",");
+                                sw_out.Write(this.vocaList[top_word_topic[topic_idx][rank_word_idx]] + ",");
                             }
                             sw_out.WriteLine("");
                         }

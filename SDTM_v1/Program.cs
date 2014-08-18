@@ -68,7 +68,7 @@ namespace SDTM_v1
 			#if DEBUG
 			if (0 == args.Length)
 			{
-                args = new[] { "-i", "1000", "-d", "./input_data", "-o", "./output_data", "-b", "0.01:2.0:0.000001", "-k", "6:4:4" };
+                args = new[] { "-i", "3000", "-d", "./input_data", "-o", "./output_data", "-b", "0.01:2.0:0.000001", "-k", "60:40:40" };
 			}
 			#endif
 
