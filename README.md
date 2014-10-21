@@ -3,11 +3,11 @@ SDTM
 
 Self-Disclosure Topic Model
 
-Paper: http://uilab.kaist.ac.kr/research/EMNLP2014/
+Paper: http://uilab.kaist.ac.kr/research/EMNLP2014/emnlp2014_bak_lin_oh.ph.pdf
 
-Related data: http://uilab.kaist.ac.kr/research/EMNLP/Twitter_Conversation.zip
+Related data: http://uilab.kaist.ac.kr/research/EMNLP2014/Twitter_Conversation.zip
 
-Site: http://uilab.kaist.ac.kr/research/EMNLP/
+Site: http://uilab.kaist.ac.kr/research/EMNLP2014/
 
 Other package origin
 - CommandLineParser from https://commandline.codeplex.com/
